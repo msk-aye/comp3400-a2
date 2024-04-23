@@ -96,7 +96,7 @@ applyTuple :: (a -> b) -> (a, a) -> (b, b)
 applyTuple f (x, y) = (f x, f y)
 
 instance Functor Zipper where
-    fmap :: (a -> b) -> Zipper a -> Zipper b
+    -- fmap :: (a -> b) -> Zipper a -> Zipper b
     -- Rule 1: fmap id
     -- Rule 2: fmap (g.h) = fmap g . fmap h
     fmap _ (Zipper [] [] []) = Zipper [] [] []
@@ -112,7 +112,7 @@ zip1 (Zipper connected (x : xs) (y : ys)) = Zipper (connected ++ [(x, y)]) xs ys
 
 unzip1 :: Zipper a -> Zipper a
 unzip1 (Zipper [] a b ) = Zipper [] a b
-unzip1 (Zipper (x : xs) a b) = Zipper xs (fst x : a) (snd x : b)
+unzip1 (Zipper x a b) = Zipper (init x) (fst (last x) : a) (snd (last x) : b)
 
 fullyZip :: Zipper a -> Zipper a
 fullyZip (Zipper connected [] other) = Zipper connected [] other
