@@ -62,17 +62,40 @@ rotate lists = take (length lists) t
     where
         t = firstTwoFromEach lists : rotate (map (drop 2) lists)
 
-antirotate :: Triangle -> Triangle
-antirotate [[]] = [[]]
-
 -- Merges the three traingles in order
 merge :: Triangle -> Triangle -> Triangle -> Triangle
 merge [] [] [] = []
 merge (a:as) (b:bs) (c:cs) = (a ++ b ++ c) : merge as bs cs
 
+incrementN' :: Integer -> [Integer] -> [Integer]
+incrementN' n [] = []
+incrementN' n (x:xs) | x == 0 = x : incrementN' n xs
+                    | otherwise = x + n : incrementN' n xs
+
+incrementN :: Integer -> Triangle -> Triangle
+incrementN = map . incrementN'
+
+findCount :: Triangle -> Integer
+findCount [[0]] = 0
+findCount lst = 4 * prevCount + 1
+    where
+        prevCount = findCount $ take (length lst `div` 2) lst
+
+replaceTip :: Integer -> Triangle -> Triangle
+replaceTip n (x:xs) = [n] : xs
+
+replaceZero' :: Integer -> Integer -> Integer
+replaceZero' n a = if a == 0 then n else a
+
+replaceZero :: Integer -> Triangle -> Triangle
+replaceZero _ [] = []
+replaceZero n (x:xs) | x == [0] = [0] : replaceZero n xs
+                     | otherwise = map (replaceZero' n) x : replaceZero n xs
 
 tiling :: Integer -> Triangle
 tiling 0 = [[0]]
-tiling n = t ++ merge (rotate $ rev t) (reverse t) (rotate $ reverse t)
+tiling 1 = [[0], [1,1,1]]
+tiling n = replaceZero (x*4 + 1) $ t ++ merge (incrementN x (reverse $ rotate $ rev t)) (incrementN (x*2) (reverse t)) (incrementN (x*3) (reverse $ rotate t))
     where
         t = tiling (n - 1)
+        x = findCount t
