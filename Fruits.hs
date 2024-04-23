@@ -131,6 +131,8 @@ EXAMPLES
                            == Just tree2 -- Infinite trees can be everywhere...
 --}
 
+
+-- VERY IMPORTANT, FIND ALL THE CASES WHERE THE FUNCTION CAN BE DEFINED AND ONLY IMPLEMENT FOR THAT
 data Tree a = Tree a [Tree a]
     deriving (Eq, Show)
 
