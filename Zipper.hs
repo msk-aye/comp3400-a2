@@ -92,20 +92,33 @@ accordingly.
 data Zipper a = Zipper [(a, a)] [a] [a]
     deriving (Eq, Show)
 
+applyTuple :: (a -> b) -> (a, a) -> (b, b)
+applyTuple f (x, y) = (f x, f y)
+
 instance Functor Zipper where
-    fmap = undefined
+    fmap :: (a -> b) -> Zipper a -> Zipper b
+    -- Rule 1: fmap id
+    -- Rule 2: fmap (g.h) = fmap g . fmap h
+    fmap _ (Zipper [] [] []) = Zipper [] [] []
+    fmap f (Zipper a b c) = Zipper (map (applyTuple f) a) (map f b) (map f c)
 
 toZipper :: [a] -> [a] -> Zipper a
-toZipper = undefined
+toZipper = Zipper []
 
 zip1 :: Zipper a -> Zipper a
-zip1 = undefined
+zip1 (Zipper connected [] other) = Zipper connected [] other
+zip1 (Zipper connected other []) = Zipper connected other []
+zip1 (Zipper connected (x : xs) (y : ys)) = Zipper (connected ++ [(x, y)]) xs ys
 
 unzip1 :: Zipper a -> Zipper a
-unzip1 = undefined
+unzip1 (Zipper [] a b ) = Zipper [] a b
+unzip1 (Zipper (x : xs) a b) = Zipper xs (fst x : a) (snd x : b)
 
 fullyZip :: Zipper a -> Zipper a
-fullyZip = undefined
+fullyZip (Zipper connected [] other) = Zipper connected [] other
+fullyZip (Zipper connected other []) = Zipper connected other []
+fullyZip z = fullyZip (zip1 z)
 
 fullyUnzip :: Zipper a -> Zipper a
-fullyUnzip = undefined
+fullyUnzip (Zipper [] a b) = Zipper [] a b
+fullyUnzip z = fullyUnzip (unzip1 z)
