@@ -132,22 +132,25 @@ EXAMPLES
 --}
 
 
--- VERY IMPORTANT, FIND ALL THE CASES WHERE THE FUNCTION CAN BE DEFINED AND ONLY IMPLEMENT FOR THAT
+-- VERY IMPORTANT: FIND ALL THE CASES WHERE THE FUNCTION CAN BE DEFINED AND ONLY IMPLEMENT FOR THAT
 data Tree a = Tree a [Tree a]
     deriving (Eq, Show)
 
-step :: Tree a -> [Tree a]
-step (Tree _ []) = []
-step (Tree _ (t:ts)) = t : ts
+isHeight :: Integer -> Tree a -> Bool
+isHeight 0 (Tree x []) = True
+isHeight 0 (Tree x subtrees) = False
+isHeight n (Tree x subtrees) = all (isHeight (n - 1)) subtrees
 
-thing :: [Tree a] -> [Tree a]
-thing = concatMap step
+getFirst :: (a -> Bool) -> [a] -> Maybe a
+getFirst _ [] = Nothing
+getFirst f (x:xs) | f x = Just x
+                  | otherwise = getFirst f xs
+
+smallest' :: Integer -> [Tree a] -> Maybe (Tree a)
+smallest' n xs = case getFirst (isHeight n) xs of
+  Nothing -> smallest' (n+1) xs
+  Just x -> Just x
 
 smallest :: [Tree a] -> Maybe (Tree a)
 smallest [] = Nothing
-smallest [Tree a []] = Just (Tree a [])
-smallest (t:ts) = smallest $ thing (t:ts)
-
-height :: Tree a -> Int
-height (Tree _ []) = 1
-height (Tree _ ts) = 1 + maximum (map height ts) 
+smallest  xs = smallest' 0 xs
