@@ -99,8 +99,7 @@ instance Functor Zipper where
     -- fmap :: (a -> b) -> Zipper a -> Zipper b
     -- Rule 1: fmap id
     -- Rule 2: fmap (g.h) = fmap g . fmap h
-    fmap _ (Zipper [] [] []) = Zipper [] [] []
-    fmap f (Zipper a b c) = Zipper (map (applyTuple f) a) (map f b) (map f c)
+    fmap f (Zipper a b c) = Zipper (applyTuple f <$> a) (f <$> b) (f <$> c)
 
 toZipper :: [a] -> [a] -> Zipper a
 toZipper = Zipper []

@@ -107,28 +107,15 @@ type Coeff = Integer -- precondition: always positive.
 data Polynomial = Mono Coeff Deg | Add Polynomial Polynomial
                                  | Mul Polynomial Polynomial deriving Show
 
-toList :: Polynomial -> [[(Integer, Integer)]]
-toList (Mono c d) = [[(c, d)]]
-toList (Add d a) = toList d ++ toList a
-toList (Mul d a) = toList d ++ toList a
-
-multiply :: Polynomial -> Polynomial
-multiply (Mono c d) = Mono c d
-multiply (Add p1 p2) = Add p1 p2
---multiply (Mul p1 p2) = multiply' Mul (multiply p1) (multiply p2)
-  where
-    multiply' :: Polynomial -> Polynomial
-    multiply' = undefined
-
--- eliminate multiplication
 expand :: Polynomial -> Polynomial
-expand (Mono c d) = Mono c d
-expand (Add p1 p2) = Add p1 p2
-expand (Mul p1 p2) = expand' (expand p1) (expand p2)
-  where
-    expand' :: Polynomial -> Polynomial -> Polynomial
-    expand' = undefined
+expand (Mono coeff deg) = Mono coeff deg
+expand (Add p1 p2) = Add (expand p1) (expand p2)
+expand (Mul p1 p2) = multiply p1 p2
+    where
+    multiply :: Polynomial -> Polynomial -> Polynomial
+    multiply (Add a b) c = Add (multiply (expand a) (expand c)) (multiply (expand b) (expand c))
+    multiply a (Add b c) = Add (multiply (expand a) (expand b)) (multiply (expand a) (expand c))
+    multiply (Mono c1 d1) (Mono c2 d2) = Mono (c1 * c2) (d1 + d2)
 
--- simplified polynom is returned in descending degree
 simplify :: Polynomial -> Polynomial
 simplify = undefined
